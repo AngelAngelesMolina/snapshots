@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1098696488459",
+    "project_id": "snapshots-feb01",
+    "storage_bucket": "snapshots-feb01.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098696488459:android:7d2688f1b73bcd4145790e",
+        "android_client_info": {
+          "package_name": "com.example.snapshots"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJF2nm8xkDf5FiRWUDxlk8S1KlDtuqg0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
