@@ -50,7 +50,10 @@ class AddFragment : Fragment() {
         //requireActivity.startActivityForResult(intent, RC_GALLERY)
     }
 
-    private fun saveSnapshot() {
+    private fun saveSnapshot(key:String, url:String, title: String) {
+        val snapshot = Snapshot(title = title, photoUrl = url)
+        mDatabaseReference.child(key).setValue(snapshot)
+
 
     }
 
@@ -68,6 +71,7 @@ class AddFragment : Fragment() {
 
     private fun postSnapshot() {
         mBinding.progressBar.visibility = View.VISIBLE
+        val key = mDatabaseReference.push().key!!
         val storageRef = mStorageReference.child(PATH_SNAPSHOT).child("my_photo")
         if (mPhotoSelectedUri != null) {
             storageRef.putFile(mPhotoSelectedUri!!)
@@ -79,8 +83,14 @@ class AddFragment : Fragment() {
                 .addOnCompleteListener {
                     mBinding.progressBar.visibility = View.INVISIBLE
                 }
-                .addOnSuccessListener {
+                .addOnSuccessListener { it ->
                     Toast.makeText(requireContext(), "Intantanea publicada", Toast.LENGTH_SHORT).show()
+                    it.storage.downloadUrl.addOnSuccessListener {
+                    saveSnapshot(key, it.toString(), mBinding.etTitle.text.toString().trim())
+                        mBinding.tilTitle.visibility = View.GONE
+                        mBinding.tvMessage.text = getString(R.string.post_message_title)
+                    }
+
                 }
                 .addOnFailureListener {
                     Toast.makeText(requireContext(), "No se pudo subir, intente más tarde.", Toast.LENGTH_SHORT).show()
