@@ -1,11 +1,14 @@
 package com.example.snapshots
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.snapshots.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Arrays
 
@@ -37,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             if (user == null) {
                 startActivityForResult(
                     AuthUI.getInstance().createSignInIntentBuilder()
+                        .setIsSmartLockEnabled(false)
                         .setAvailableProviders(
                             listOf(
                                 AuthUI.IdpConfig.EmailBuilder().build(),
@@ -94,6 +98,11 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+        mBinding.bottomNav.setOnItemReselectedListener {
+            when(it.itemId){
+                R.id.action_home -> (homeFragment as HomeAux).goToTop()
+            }
+        }
     }
 
     override fun onResume() {
@@ -104,5 +113,18 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         mFirebaseAuth?.removeAuthStateListener(mAuthListener)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGNIN) {
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "Bienvenido", Toast.LENGTH_SHORT).show()
+            } else {
+                if(IdpResponse.fromResultIntent(data) == null){ //el usr cancelo el intent
+                    finish()
+                }
+            }
+        }
     }
 }
