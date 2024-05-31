@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.snapshots.databinding.ActivityMainBinding
@@ -22,6 +23,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mAuthListener: FirebaseAuth.AuthStateListener
     private var mFirebaseAuth: FirebaseAuth? = null
 
+    private val authResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        if (it.resultCode == RESULT_OK) {
+            Toast.makeText(this, "Bienvenido", Toast.LENGTH_SHORT).show()
+        } else {
+            if(IdpResponse.fromResultIntent(it.data) == null){ //el usr cancelo el intent
+                finish()
+            }
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         mAuthListener = FirebaseAuth.AuthStateListener { auth ->
             val user = auth.currentUser
             if (user == null) {
-                startActivityForResult(
+                authResult.launch(
                     AuthUI.getInstance().createSignInIntentBuilder()
                         .setIsSmartLockEnabled(false)
                         .setAvailableProviders(
@@ -46,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                                 AuthUI.IdpConfig.EmailBuilder().build(),
                                 AuthUI.IdpConfig.GoogleBuilder().build()
                             )
-                        ).build(), RC_SIGNIN
+                        ).build()
                 )
             }
         }
@@ -117,14 +128,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGNIN) {
-            if (resultCode == RESULT_OK) {
-                Toast.makeText(this, "Bienvenido", Toast.LENGTH_SHORT).show()
-            } else {
-                if(IdpResponse.fromResultIntent(data) == null){ //el usr cancelo el intent
-                    finish()
-                }
-            }
-        }
+
     }
 }

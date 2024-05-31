@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.snapshots.databinding.FragmentAddBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -26,6 +27,16 @@ class AddFragment : Fragment() {
     private lateinit var mDatabaseReference: DatabaseReference
 
     private var mPhotoSelectedUri: Uri? = null
+
+    private val galleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        if (it.resultCode == Activity.RESULT_OK) {
+                mPhotoSelectedUri = it.data?.data
+                mBinding.imgPhoto.setImageURI(mPhotoSelectedUri)
+                mBinding.tilTitle.visibility = View.VISIBLE
+                mBinding.tvMessage.text = getString(R.string.post_message_invalid_title)
+        }
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,7 +58,8 @@ class AddFragment : Fragment() {
         val intent = Intent(
             Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         )
-        startActivityForResult(intent, RC_GALLERY)
+        galleryResult.launch(intent)
+        //startActivityForResult(intent, RC_GALLERY)
         //requireActivity.startActivityForResult(intent, RC_GALLERY)
     }
 
@@ -58,17 +70,7 @@ class AddFragment : Fragment() {
 
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == RC_GALLERY) {
-                mPhotoSelectedUri = data?.data
-                mBinding.imgPhoto.setImageURI(mPhotoSelectedUri)
-                mBinding.tilTitle.visibility = View.VISIBLE
-                mBinding.tvMessage.text = getString(R.string.post_message_invalid_title)
-            }
-        }
-    }
+
 
     private fun postSnapshot() {
         mBinding.progressBar.visibility = View.VISIBLE
